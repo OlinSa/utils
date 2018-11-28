@@ -36,14 +36,8 @@ void Log::Printf(enum LogLevel level, const char *file, const char *func, int l,
         std::cout<<"unsupport level("<<level<<")"<<std::endl;
         return;
     }
-    const char *filename = strrchr(file, '/');
-    if(filename){
-        filename += 1;
-    }else {
-        filename = file;
-    }
     std::cout<<"["<<g_LevelName[level]<<"]"<<RESET;
-    std::cout<<"["<<filename<<"]"<<func<<" ("<< l<< "):\t";
+    std::cout<<"["<<file<<"::"<<func<<"]("<< l<< "):\t";
     vfprintf(stdout, fmt, ap);
     va_end(ap);
     std::cout<<std::endl;

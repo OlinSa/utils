@@ -48,6 +48,7 @@ void CThreadPool::Run(CJob *job, void *jobdata)
     CWorkerThread *idlethr = GetIdleThread();
     if (idlethr)
     {
+        MoveToBusyList(idlethr);
         idlethr->SetThreadPool(this);
         job->SetWorkThread(idlethr);
         idlethr->SetJob(job, jobdata);

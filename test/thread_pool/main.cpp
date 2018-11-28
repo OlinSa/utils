@@ -12,7 +12,7 @@ class MyJob : public CJob
     void Run(void *ptr)
     {
         std::cout<<"job task is run"<<std::endl;
-        sleep(1);
+        sleep(5);
     }
 };
 
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     CThreadManager *manager = new CThreadManager(3);
     std::list<MyJob*> job_list;
     MyJob* newjob;
-    for(int i = 0; i < 40; i++){
+    for(int i = 0; i < 4; i++){
         newjob = new MyJob();
         manager->Run(newjob, &i);
         job_list.push_back(newjob);
