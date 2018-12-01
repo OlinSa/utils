@@ -27,7 +27,8 @@ int main(int argc, char *argv[])
     try
     {
         string filename(argv[1]);
-        CBmp bmp(filename);
+        CBmp bmp;
+        bmp.LoadBmp(filename);
         bmp.ShowBmpHead();
         bmp.ShowBmpInforHead();
     }

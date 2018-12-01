@@ -4,27 +4,30 @@
 
 using namespace std;
 
-CBmp::CBmp(const std::string &f)
+CBmp::CBmp()
+{
+}
+CBmp::~CBmp()
+{
+}
+bool CBmp::LoadBmp(const std::string &f)
 {
     this->filename = f;
 
     FILE *fp = fopen(f.c_str(), "rb");
-    if(fp)
+    if (fp)
     {
         fread(&bmpHead, 1, sizeof(BITMAPFILEHEADER), fp);
         fread(&bmpInforHead, 1, sizeof(BITMAPINFODEADER), fp);
         fclose(fp);
         LOG_DEBUG("BITMAPFILEHEADER(%d Byte),BITMAPINFODEADER(%d Byte)", sizeof(BITMAPFILEHEADER), sizeof(BITMAPINFODEADER));
-    }else {
+    }
+    else
+    {
         LOG_ERR("open %s failed", f.c_str());
         throw exception();
     }
 }
-CBmp::~CBmp()
-{
-
-}
-
 void CBmp::ShowBmpHead()
 {
     cout << "位图文件头:" << endl;

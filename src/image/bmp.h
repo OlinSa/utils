@@ -36,8 +36,9 @@ typedef struct BITMAPINFOHEADER
 class CBmp
 {
   public:
-    CBmp(const std::string &f);
+    CBmp();
     ~CBmp();
+    bool LoadBmp(const std::string &f);
     void ShowBmpHead();
     void ShowBmpInforHead();
 
