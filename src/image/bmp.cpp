@@ -27,6 +27,7 @@ bool CBmp::LoadBmp(const std::string &f)
         LOG_ERR("open %s failed", f.c_str());
         throw exception();
     }
+    return true;
 }
 void CBmp::ShowBmpHead()
 {
