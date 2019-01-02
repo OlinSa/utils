@@ -25,6 +25,9 @@ include_directories(/usr/local/include/liveMedia)
 include_directories(/usr/local/include/UsageEnvironment)
 target_link_libraries(live liveMedia BasicUsageEnvironment groupsock UsageEnvironment)
 
-
+aux_source_directory(camera CAMERA_SRC)
+add_executable(camera ${CAMERA_SRC})
+include_directories(/usr/local/include/opencv4)
+target_link_libraries(camera opencv_core opencv_video opencv_highgui opencv_imgproc opencv_ml opencv_videoio)
 
 
