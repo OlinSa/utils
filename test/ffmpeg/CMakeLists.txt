@@ -1,0 +1,5 @@
+aux_source_directory(. RTMP_SRC)
+add_executable(ffmpeg_rtmp ${RTMP_SRC})
+include_directories(/usr/local/include/)
+SET(FFMPEG_LIB -lavformat -lavcodec -lavdevice -lavfilter  -lavutil  -lswresample -lswscale -ldl -lz)
+target_link_libraries(ffmpeg_rtmp ${FFMPEG_LIB})

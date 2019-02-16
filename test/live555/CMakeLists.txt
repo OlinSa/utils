@@ -1,0 +1,7 @@
+aux_source_directory(. LIVE_TEST_SRC)
+add_executable(live ${LIVE_TEST_SRC})
+include_directories(/usr/local/include/BasicUsageEnvironment)
+include_directories(/usr/local/include/groupsock)
+include_directories(/usr/local/include/liveMedia)
+include_directories(/usr/local/include/UsageEnvironment)
+target_link_libraries(live liveMedia BasicUsageEnvironment groupsock UsageEnvironment)
