@@ -34,3 +34,8 @@
 .vscode
 build
 package
+
+# clion
+
+.idea
+cmake-build-debug
