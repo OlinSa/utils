@@ -45,6 +45,7 @@ typedef struct
 class H264Wrap
 {
   public:
+
     /**
     * @brief 从buffer中获取nalu
     *
@@ -55,9 +56,24 @@ class H264Wrap
     * @see None.
     * @note None.
     */
-    int GetNaluFromBuffer(NaluUnit &nalu, unsigned char *buf, int buf_size);
+    int GetNaluFromBuffer(NaluUnit &nalu, unsigned char *buf, int bufSize);
 
+    /**
+    * @brief 解析sps
+    *
+    * @param [in] data: @n sps data
+    * @param [in] dataLen: @n sps data len
+    * @param [out] width: @n 图像宽度
+    * @param [out] height: @n 图像高度
+    * @param [out] fps: @n 图像帧率
+    * @return true or false
+    * @see None.
+    * @note None.
+    */
+    bool DecodeSPS(unsigned char *data, int dataLen, int &width, int &height, int &fps);
+    void KickOutNaluRaceCondition(unsigned char *data, int &dataLen);
     void PrintH264Info(std::string filename);
+
 };
 
 #endif

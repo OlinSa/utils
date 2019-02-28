@@ -7,5 +7,4 @@ AUX_SOURCE_DIRECTORY(media DIR_SRC)
 ADD_LIBRARY(utils ${DIR_SRC})
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/common)
 
-
 add_subdirectory(unittest)

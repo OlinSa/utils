@@ -1,4 +1,10 @@
+include_directories(${CMAKE_SOURCE_DIR}/common)
+include_directories(${CMAKE_SOURCE_DIR}/src/)
 include_directories(/home/cuijian/do/package/rtmpdump)
 link_directories(/home/cuijian/do/package/rtmpdump/librtmp)
+link_directories(${PROJECT_SOURCE_DIR}/src/meida)
 add_executable(send_flv send_flv.cpp)
 target_link_libraries(send_flv rtmp)
+
+add_executable(send_h264 send_h264.cpp)
+target_link_libraries(send_h264 rtmp utils log)
