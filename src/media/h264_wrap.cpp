@@ -171,8 +171,9 @@ void H264Wrap::PrintH264Info(std::string filename)
 		while ((nextFramePos = GetNaluFromBuffer(nalu, buf + pos, alreadSeen - pos)) > 0)
 		{
 			naluCount++;
-			LOG_DEBUG("%d nalu: startcode:%d,type:%d, data:%p, dataSize:%d,nextFramePos:%d",
-					  naluCount, nalu.startCode, nalu.type, nalu.data, nalu.size, nextFramePos);
+			PrintNalu(nalu);
+			// LOG_DEBUG("%d nalu: startcode:%d,type:%d, data:%p, dataSize:%d,nextFramePos:%d",
+			//   naluCount, nalu.startCode, nalu.type, nalu.data, nalu.size, nextFramePos);
 			pos += nextFramePos;
 			//                pos          alreadSeen      bufSize
 			// |  #############| ############| #############|
@@ -353,4 +354,74 @@ void H264Wrap::KickOutNaluRaceCondition(unsigned char *data, int &dataLen)
 	}
 
 	return;
+}
+
+void H264Wrap::PrintNalu(const NaluUnit &nalu)
+{
+	std::string outputString;
+	NaluHeader naluheader;
+	naluheader.forbiddent_zero_bit = nalu.data[0] >> 7 & 0x01;
+	naluheader.nal_ref_idc = nalu.data[0] >> 5 & 0x03;
+	naluheader.type = nalu.data[0] & 0x1f;
+
+	switch (naluheader.nal_ref_idc)
+	{
+	case NALU_PRIORITY_DISPOSABLE:
+		outputString = "DISPOSABLE";
+		break;
+	case NALU_PRIRITY_LOW:
+		outputString = "LOW";
+		break;
+	case NALU_PRIORITY_HIGH:
+		outputString = "HIGH";
+		break;
+	case NALU_PRIORITY_HIGHEST:
+		outputString = "HIGHEST";
+		break;
+	}
+
+	outputString += " ";
+	switch (naluheader.type)
+	{
+	case NALU_TYPE_SLICE:
+		outputString += "SLICE";
+		break;
+	case NALU_TYPE_DPA:
+		outputString += "DPA";
+		break;
+	case NALU_TYPE_DPB:
+		outputString += "DPB";
+		break;
+	case NALU_TYPE_DPC:
+		outputString += "DPC";
+		break;
+	case NALU_TYPE_IDR:
+		outputString += "IDR";
+		break;
+	case NALU_TYPE_SEI:
+		outputString += "SEI";
+		break;
+	case NALU_TYPE_SPS:
+		outputString += "SPS";
+		break;
+	case NALU_TYPE_PPS:
+		outputString += "PPS";
+		break;
+	case NALU_TYPE_AUD:
+		outputString += "AUD";
+		break;
+	case NALU_TYPE_EOSEQ:
+		outputString += "EOSEQ";
+		break;
+	case NALU_TYPE_EOSTREAM:
+		outputString += "EOSTREAM";
+		break;
+	case NALU_TYPE_FILL:
+		outputString += "FILL";
+		break;
+	default:
+		outputString += "unkown" + to_string(naluheader.type);
+		break;
+	}
+	LOG_DEBUG(outputString.c_str());
 }

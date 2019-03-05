@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#define BUFSIZE_DEFAULT 102400
+#define BUFSIZE_DEFAULT 200000
 //定义包头长度，RTMP_MAX_HEADER_SIZE=18
 #define RTMP_HEAD_SIZE (sizeof(RTMPPacket) + RTMP_MAX_HEADER_SIZE)
 //存储Nal单元数据的buffer大小
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
         goto do_exit;
     }
 
-    LOG_INFO("publish %s suc", filename);
+    LOG_INFO("publish %s suc", filename.c_str());
     ret = 0;
 do_exit:
     if (rtmpH264)

@@ -36,6 +36,12 @@ typedef struct
     unsigned char *data;
 } NaluUnit;
 
+typedef struct {
+    unsigned char forbiddent_zero_bit:1; //must be zero
+    unsigned char nal_ref_idc:2;
+    unsigned char type:5;
+}NaluHeader;
+
 /***
  *  NALU = Header + RBSP
  *  NALU Header = forbidden_zero_bit(1bit)+nal_ref_idc(2bits) +nalu__unit_type(5bit)
@@ -45,7 +51,6 @@ typedef struct
 class H264Wrap
 {
   public:
-
     /**
     * @brief 从buffer中获取nalu
     *
@@ -73,7 +78,7 @@ class H264Wrap
     bool DecodeSPS(unsigned char *data, int dataLen, int &width, int &height, int &fps);
     void KickOutNaluRaceCondition(unsigned char *data, int &dataLen);
     void PrintH264Info(std::string filename);
-
+    void PrintNalu(const NaluUnit &nalu);
 };
 
 #endif
