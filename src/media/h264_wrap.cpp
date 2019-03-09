@@ -175,6 +175,21 @@ void H264Wrap::PrintH264Info(std::string filename)
 			// LOG_DEBUG("%d nalu: startcode:%d,type:%d, data:%p, dataSize:%d,nextFramePos:%d",
 			//   naluCount, nalu.startCode, nalu.type, nalu.data, nalu.size, nextFramePos);
 			pos += nextFramePos;
+
+			if (nalu.type == NALU_TYPE_SPS)
+			{
+				NaluParam naluParam;
+				if (!DecodeNaluParams(naluParam, nalu.data, nalu.size))
+				{
+					LOG_ERR("decode NaluParams failed");
+				}
+				else
+				{
+					LOG_INFO("width:%u, height:%u, fps:%u",
+							 (naluParam.rbsp.pic_width_in_mbs_minus1 + 1) * 16, (naluParam.rbsp.pic_height_in_map_units_minus1 + 1) * 16, naluParam.rbsp.uvi_parameters.time_scale / (2 * naluParam.rbsp.uvi_parameters.num_units_in_tick));
+					FreeNaluParams(naluParam);
+				}
+			}
 			//                pos          alreadSeen      bufSize
 			// |  #############| ############| #############|
 
@@ -203,132 +218,6 @@ void H264Wrap::PrintH264Info(std::string filename)
 	}
 	inFile.close();
 	return;
-}
-
-bool H264Wrap::DecodeSPS(unsigned char *data, int dataLen, int &width, int &height, int &fps)
-{
-	KickOutNaluRaceCondition(data, dataLen);
-	unsigned int startBits = 0;
-	int forbit_zero_bit = u(1, data, startBits);
-	int nal_ref_idc = u(2, data, startBits);
-	int nal_unit_type = u(5, data, startBits);
-	fps = 0;
-
-	if (nal_unit_type == NALU_TYPE_SPS)
-	{
-		int profile_idc = u(8, data, startBits);
-		int constraint_set0_flag = u(1, data, startBits); //(buf[1] & 0x80)>>7;
-		int constraint_set1_flag = u(1, data, startBits); //(buf[1] & 0x40)>>6;
-		int constraint_set2_flag = u(1, data, startBits); //(buf[1] & 0x20)>>5;
-		int constraint_set3_flag = u(1, data, startBits); //(buf[1] & 0x10)>>4;
-		int reserved_zero_4bits = u(4, data, startBits);
-		int level_idc = u(8, data, startBits);
-
-		int seq_parameter_set_id = Ue(data, dataLen, startBits);
-		if (profile_idc == 100 || profile_idc == 110 ||
-			profile_idc == 122 || profile_idc == 144)
-		{
-			int chroma_format_idc = Ue(data, dataLen, startBits);
-			if (chroma_format_idc == 3)
-				int residual_colour_transform_flag = u(1, data, startBits);
-			int bit_depth_luma_minus8 = Ue(data, dataLen, startBits);
-			int bit_depth_chroma_minus8 = Ue(data, dataLen, startBits);
-			int qpprime_y_zero_transform_bypass_flag = u(1, data, startBits);
-			int seq_scaling_matrix_present_flag = u(1, data, startBits);
-
-			int seq_scaling_list_present_flag[8];
-			if (seq_scaling_matrix_present_flag)
-			{
-				for (int i = 0; i < 8; i++)
-				{
-					seq_scaling_list_present_flag[i] = u(1, data, startBits);
-				}
-			}
-		}
-		int log2_max_frame_num_minus4 = Ue(data, dataLen, startBits);
-		int pic_order_cnt_type = Ue(data, dataLen, startBits);
-		if (pic_order_cnt_type == 0)
-			int log2_max_pic_order_cnt_lsb_minus4 = Ue(data, dataLen, startBits);
-		else if (pic_order_cnt_type == 1)
-		{
-			int delta_pic_order_always_zero_flag = u(1, data, startBits);
-			int offset_for_non_ref_pic = Se(data, dataLen, startBits);
-			int offset_for_top_to_bottom_field = Se(data, dataLen, startBits);
-			int num_ref_frames_in_pic_order_cnt_cycle = Ue(data, dataLen, startBits);
-
-			int *offset_for_ref_frame = new int[num_ref_frames_in_pic_order_cnt_cycle];
-			for (int i = 0; i < num_ref_frames_in_pic_order_cnt_cycle; i++)
-				offset_for_ref_frame[i] = Se(data, dataLen, startBits);
-			delete[] offset_for_ref_frame;
-		}
-		int num_ref_frames = Ue(data, dataLen, startBits);
-		int gaps_in_frame_num_value_allowed_flag = u(1, data, startBits);
-		int pic_width_in_mbs_minus1 = Ue(data, dataLen, startBits);
-		int pic_height_in_map_units_minus1 = Ue(data, dataLen, startBits);
-
-		width = (pic_width_in_mbs_minus1 + 1) * 16;
-		height = (pic_height_in_map_units_minus1 + 1) * 16;
-
-		int frame_mbs_only_flag = u(1, data, startBits);
-		if (!frame_mbs_only_flag)
-			int mb_adaptive_frame_field_flag = u(1, data, startBits);
-
-		int direct_8x8_inference_flag = u(1, data, startBits);
-		int frame_cropping_flag = u(1, data, startBits);
-		if (frame_cropping_flag)
-		{
-			int frame_crop_left_offset = Ue(data, dataLen, startBits);
-			int frame_crop_right_offset = Ue(data, dataLen, startBits);
-			int frame_crop_top_offset = Ue(data, dataLen, startBits);
-			int frame_crop_bottom_offset = Ue(data, dataLen, startBits);
-		}
-		int vui_parameter_present_flag = u(1, data, startBits);
-		if (vui_parameter_present_flag)
-		{
-			int aspect_ratio_info_present_flag = u(1, data, startBits);
-			if (aspect_ratio_info_present_flag)
-			{
-				int aspect_ratio_idc = u(8, data, startBits);
-				if (aspect_ratio_idc == 255)
-				{
-					int sar_width = u(16, data, startBits);
-					int sar_height = u(16, data, startBits);
-				}
-			}
-			int overscan_info_present_flag = u(1, data, startBits);
-			if (overscan_info_present_flag)
-				int overscan_appropriate_flagu = u(1, data, startBits);
-			int video_signal_type_present_flag = u(1, data, startBits);
-			if (video_signal_type_present_flag)
-			{
-				int video_format = u(3, data, startBits);
-				int video_full_range_flag = u(1, data, startBits);
-				int colour_description_present_flag = u(1, data, startBits);
-				if (colour_description_present_flag)
-				{
-					int colour_primaries = u(8, data, startBits);
-					int transfer_characteristics = u(8, data, startBits);
-					int matrix_coefficients = u(8, data, startBits);
-				}
-			}
-			int chroma_loc_info_present_flag = u(1, data, startBits);
-			if (chroma_loc_info_present_flag)
-			{
-				int chroma_sample_loc_type_top_field = Ue(data, dataLen, startBits);
-				int chroma_sample_loc_type_bottom_field = Ue(data, dataLen, startBits);
-			}
-			int timing_info_present_flag = u(1, data, startBits);
-			if (timing_info_present_flag)
-			{
-				int num_units_in_tick = u(32, data, startBits);
-				int time_scale = u(32, data, startBits);
-				fps = time_scale / (2 * num_units_in_tick);
-			}
-		}
-		return true;
-	}
-	else
-		return false;
 }
 
 void H264Wrap::KickOutNaluRaceCondition(unsigned char *data, int &dataLen)
@@ -424,4 +313,127 @@ void H264Wrap::PrintNalu(const NaluUnit &nalu)
 		break;
 	}
 	LOG_DEBUG(outputString.c_str());
+}
+
+bool H264Wrap::DecodeNaluParams(NaluParam &naluParam, unsigned char *data, int &dataLen)
+{
+	KickOutNaluRaceCondition(data, dataLen);
+	unsigned int startBits = 0;
+	naluParam.header.forbiddent_zero_bit = u(1, data, startBits);
+	naluParam.header.nal_ref_idc = u(2, data, startBits);
+	naluParam.header.type = u(5, data, startBits);
+
+	naluParam.rbsp.profile_idc = u(8, data, startBits);
+	naluParam.rbsp.constraint_set0_flag = u(1, data, startBits); //(buf[1] & 0x80)>>7;
+	naluParam.rbsp.constraint_set1_flag = u(1, data, startBits); //(buf[1] & 0x40)>>6;
+	naluParam.rbsp.constraint_set2_flag = u(1, data, startBits); //(buf[1] & 0x20)>>5;
+	naluParam.rbsp.constraint_set3_flag = u(1, data, startBits); //(buf[1] & 0x10)>>4;
+	naluParam.rbsp.reserved_zero_4bits = u(4, data, startBits);
+	naluParam.rbsp.level_idc = u(8, data, startBits);
+
+	naluParam.rbsp.seq_parameter_set_id = Ue(data, dataLen, startBits);
+	if (naluParam.rbsp.profile_idc == 100 || naluParam.rbsp.profile_idc == 110 ||
+		naluParam.rbsp.profile_idc == 122 || naluParam.rbsp.profile_idc == 144)
+	{
+		naluParam.rbsp.chroma_format_idc = Ue(data, dataLen, startBits);
+		if (naluParam.rbsp.chroma_format_idc == 3)
+			naluParam.rbsp.residual_colour_transform_flag = u(1, data, startBits);
+		naluParam.rbsp.bit_depth_luma_minus8 = Ue(data, dataLen, startBits);
+		naluParam.rbsp.bit_depth_chroma_minus8 = Ue(data, dataLen, startBits);
+		naluParam.rbsp.qpprime_y_zero_transform_bypass_flag = u(1, data, startBits);
+		naluParam.rbsp.seq_scaling_matrix_present_flag = u(1, data, startBits);
+
+		if (naluParam.rbsp.seq_scaling_matrix_present_flag)
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				naluParam.rbsp.seq_scaling_list_present_flag[i] = u(1, data, startBits);
+			}
+		}
+	}
+	naluParam.rbsp.log2_max_frame_num_minus4 = Ue(data, dataLen, startBits);
+	naluParam.rbsp.pic_order_cnt_type = Ue(data, dataLen, startBits);
+	if (naluParam.rbsp.pic_order_cnt_type == 0)
+		naluParam.rbsp.log2_max_pic_order_cnt_lsb_minus4 = Ue(data, dataLen, startBits);
+	else if (naluParam.rbsp.pic_order_cnt_type == 1)
+	{
+		naluParam.rbsp.delta_pic_order_always_zero_flag = u(1, data, startBits);
+		naluParam.rbsp.offset_for_non_ref_pic = Se(data, dataLen, startBits);
+		naluParam.rbsp.offset_for_top_to_bottom_field = Se(data, dataLen, startBits);
+		naluParam.rbsp.num_ref_frames_in_pic_order_cnt_cycle = Ue(data, dataLen, startBits);
+
+		naluParam.rbsp.offset_for_ref_frame = new int[naluParam.rbsp.num_ref_frames_in_pic_order_cnt_cycle];
+		for (unsigned int i = 0; i < naluParam.rbsp.num_ref_frames_in_pic_order_cnt_cycle; i++)
+			naluParam.rbsp.offset_for_ref_frame[i] = Se(data, dataLen, startBits);
+	}
+	naluParam.rbsp.num_ref_frames = Ue(data, dataLen, startBits);
+	naluParam.rbsp.gaps_in_frame_num_value_allowed_flag = u(1, data, startBits);
+	naluParam.rbsp.pic_width_in_mbs_minus1 = Ue(data, dataLen, startBits);
+	naluParam.rbsp.pic_height_in_map_units_minus1 = Ue(data, dataLen, startBits);
+
+	naluParam.rbsp.frame_mbs_only_flag = u(1, data, startBits);
+	if (!naluParam.rbsp.frame_mbs_only_flag)
+		naluParam.rbsp.mb_adaptive_frame_field_flag = u(1, data, startBits);
+
+	naluParam.rbsp.direct_8x8_inference_flag = u(1, data, startBits);
+	naluParam.rbsp.frame_cropping_flag = u(1, data, startBits);
+	if (naluParam.rbsp.frame_cropping_flag)
+	{
+		naluParam.rbsp.frame_crop_left_offset = Ue(data, dataLen, startBits);
+		naluParam.rbsp.frame_crop_right_offset = Ue(data, dataLen, startBits);
+		naluParam.rbsp.frame_crop_top_offset = Ue(data, dataLen, startBits);
+		naluParam.rbsp.frame_crop_bottom_offset = Ue(data, dataLen, startBits);
+	}
+	naluParam.rbsp.vui_parameters_present_flag = u(1, data, startBits);
+	if (naluParam.rbsp.vui_parameters_present_flag)
+	{
+		naluParam.rbsp.uvi_parameters.aspect_ratio_info_present_flag = u(1, data, startBits);
+		if (naluParam.rbsp.uvi_parameters.aspect_ratio_info_present_flag)
+		{
+			naluParam.rbsp.uvi_parameters.aspect_ratio_idc = u(8, data, startBits);
+			if (naluParam.rbsp.uvi_parameters.aspect_ratio_idc == 255)
+			{
+				naluParam.rbsp.uvi_parameters.sar_width = u(16, data, startBits);
+				naluParam.rbsp.uvi_parameters.sar_height = u(16, data, startBits);
+			}
+		}
+		naluParam.rbsp.uvi_parameters.overscan_info_present_flag = u(1, data, startBits);
+		if (naluParam.rbsp.uvi_parameters.overscan_info_present_flag)
+			naluParam.rbsp.uvi_parameters.overscan_appropriate_flag = u(1, data, startBits);
+		naluParam.rbsp.uvi_parameters.video_signal_type_present_flag = u(1, data, startBits);
+		if (naluParam.rbsp.uvi_parameters.video_signal_type_present_flag)
+		{
+			naluParam.rbsp.uvi_parameters.video_format = u(3, data, startBits);
+			naluParam.rbsp.uvi_parameters.video_full_range_flag = u(1, data, startBits);
+			naluParam.rbsp.uvi_parameters.colour_description_present_flag = u(1, data, startBits);
+			if (naluParam.rbsp.uvi_parameters.colour_description_present_flag)
+			{
+				naluParam.rbsp.uvi_parameters.colour_primaries = u(8, data, startBits);
+				naluParam.rbsp.uvi_parameters.transfer_characteristics = u(8, data, startBits);
+				naluParam.rbsp.uvi_parameters.matrix_coefficients = u(8, data, startBits);
+			}
+		}
+		naluParam.rbsp.uvi_parameters.chroma_loc_info_present_flag = u(1, data, startBits);
+		if (naluParam.rbsp.uvi_parameters.chroma_loc_info_present_flag)
+		{
+			naluParam.rbsp.uvi_parameters.chroma_sample_loc_type_top_field = Ue(data, dataLen, startBits);
+			naluParam.rbsp.uvi_parameters.chroma_sample_loc_type_bottom_field = Ue(data, dataLen, startBits);
+		}
+		naluParam.rbsp.uvi_parameters.timing_info_present_flag = u(1, data, startBits);
+		if (naluParam.rbsp.uvi_parameters.timing_info_present_flag)
+		{
+			naluParam.rbsp.uvi_parameters.num_units_in_tick = u(32, data, startBits);
+			naluParam.rbsp.uvi_parameters.time_scale = u(32, data, startBits);
+		}
+	}
+	return true;
+}
+bool H264Wrap::FreeNaluParams(NaluParam &naluParam)
+{
+	if (naluParam.rbsp.offset_for_ref_frame)
+	{
+		delete[] naluParam.rbsp.offset_for_ref_frame;
+		naluParam.rbsp.offset_for_ref_frame = NULL;
+	}
+	return true;
 }

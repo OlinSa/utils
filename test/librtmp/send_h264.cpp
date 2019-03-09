@@ -278,13 +278,19 @@ bool RtmpH264::PublishH264(const string &filename)
         return false;
     }
 
-    int width = 0, height = 0, fps = 0;
-    if (false == h264Wrap->DecodeSPS(metaData.sps, metaData.spsLen, width, height, fps))
+    NaluParam naluParam;
+    if (false == h264Wrap->DecodeNaluParams(naluParam, metaData.sps, metaData.spsLen))
     {
         inFile.close();
         LOG_ERR("parse sps failed");
         return false;
     }
+    int width = (naluParam.rbsp.pic_width_in_mbs_minus1 + 1) * 16;
+    int height = (naluParam.rbsp.pic_height_in_map_units_minus1 + 1) * 16;
+    int fps = naluParam.rbsp.uvi_parameters.time_scale / (2 * naluParam.rbsp.uvi_parameters.num_units_in_tick);
+
+    h264Wrap->FreeNaluParams(naluParam);
+    LOG_DEBUG("width:%u, height:%u, fps:%u", width, height, fps);
 
     if (!fps)
     {
@@ -460,7 +466,7 @@ int main(int argc, char *argv[])
 
     if (!rtmpH264->Connect(url))
     {
-        LOG_ERR("connect %s failed", url);
+        LOG_ERR("connect %s failed", url.c_str());
         goto do_exit;
     }
 
