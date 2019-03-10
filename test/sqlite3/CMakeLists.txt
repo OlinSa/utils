@@ -1,0 +1,5 @@
+include_directories(${CMAKE_SOURCE_DIR}/common)
+include_directories(/usr/local/sqlite3/include)
+link_directories(/usr/local/sqlite3/lib)
+add_executable(sqlite_demo sqlite_demo.cpp)
+target_link_libraries(sqlite_demo log sqlite3)
