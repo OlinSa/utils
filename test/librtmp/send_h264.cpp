@@ -304,7 +304,6 @@ bool RtmpH264::PublishH264(const string &filename)
     bool isKeyFrame = false;
 
     int readCount;
-
     while (inFile.read(reinterpret_cast<char *>(&bufferInfo->buff[0]) + bufferInfo->alreadSeen, bufferInfo->buffSize - bufferInfo->alreadSeen))
     {
         readCount = inFile.gcount();
@@ -315,6 +314,7 @@ bool RtmpH264::PublishH264(const string &filename)
             LOG_DEBUG("nalu: startcode:%d,type:%d, data:%p, dataSize:%d,nextFramePos:%d",
                       naluUnit.startCode, naluUnit.type, naluUnit.data, naluUnit.size, nextFramePos);
             bufferInfo->pos += nextFramePos;
+
             //                pos          alreadSeen      bufSize
             // |  #############| ############| #############|
             if (naluUnit.type == NALU_TYPE_SPS || naluUnit.type == NALU_TYPE_PPS)
