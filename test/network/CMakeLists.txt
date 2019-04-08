@@ -1,0 +1,2 @@
+add_executable(epoll_server epoll_server.cpp)
+target_link_libraries(epoll_server pthread)

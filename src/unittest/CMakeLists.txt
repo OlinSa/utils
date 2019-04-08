@@ -7,3 +7,4 @@ add_definitions("-Wunused-variable")
 add_executable(h264_wrap h264_wrap.cpp ${H264_WRAP})
 
 target_link_libraries(h264_wrap log)
+target_link_libraries(h264_wrap rtmp)

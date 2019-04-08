@@ -26,6 +26,12 @@ def ParseToJson(text):
     with open('qiye.json', 'w') as fp:
         json.dump(content, fp=fp, indent=4)
 
+'''
+blocknum: 已下载的数据块
+blocksize: 数据块的大小
+totalsize: 远程文件的大小
+'''
+
 def Schedule(blocknum, blocksize, totalsize):
     per = 100.0 * blocknum * blocksize / totalsize
     if per > 100:

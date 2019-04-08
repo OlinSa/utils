@@ -39,9 +39,9 @@ bool RTMPServer::Connect(std::string url)
 //     FLV Body
 // --------------------------------------------------------------------------------------
 
-bool RTMPServer::PublishFLV(GetDataCB cb，unsigned int packageSize, void *arg)
+bool RTMPServer::PublishFLV(GetDataCB cb,unsigned int packageSize, void *arg)
 {
-    RTMPPacket *package = new RTMPPacket();
+    RTMPPacket *packet = new RTMPPacket();
     if(!packet) {
         LOG_ERR("new RTMP Pakcage failed");
         return false;
@@ -81,7 +81,7 @@ bool RTMPServer::PublishFLV(GetDataCB cb，unsigned int packageSize, void *arg)
     bool bNextIsKey = false;
 
     do {
-        now_time = RTMP_GetTime()- starttime;
+        now_time = RTMP_GetTime()- start_time;
         if (now_time < pre_frame_time && bNextIsKey) {
             if(pre_frame_time > lasttime){
                 // LOG_INFO("TimeStamp:%u")
@@ -90,7 +90,7 @@ bool RTMPServer::PublishFLV(GetDataCB cb，unsigned int packageSize, void *arg)
     }while(1);
 
 
-    delete package;
+    delete packet;
 }
 
 bool RTMPServer::PublishStream(INPUT_STREAM *stream, void *arg)
