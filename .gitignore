@@ -39,3 +39,9 @@ package
 
 .idea
 cmake-build-debug
+
+*.html
+
+#python
+*.pyc
+__pycache__
