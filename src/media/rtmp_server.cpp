@@ -372,3 +372,8 @@ bool RtmpServer::SendVideoSpsPps(const RTMPMetaData &sps,const RTMPMetaData &pps
 
     return ret ? true : false;
 }
+
+ssize_t RtmpServer::PublishFlv(const char *buf, ssize_t bufSize, void *arg)
+{
+
+}

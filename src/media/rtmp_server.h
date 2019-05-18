@@ -43,7 +43,8 @@ public:
     RtmpServer();
     ~RtmpServer();
     bool Init(std::string url, unsigned int cacheSize);
-    ssize_t PublishH264(const char *buf, ssize_t bufSize, void *arg);  
+    ssize_t PublishH264(const char *buf, ssize_t bufSize, void *arg);
+    ssize_t PublishFlv(const char *buf, ssize_t bufSize, void *arg);
     
 protected:
     bool SetSPS(const RTMPMetaData &metricData);

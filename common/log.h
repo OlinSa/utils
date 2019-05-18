@@ -25,12 +25,15 @@ public:
     Log(enum LogLevel level = LOG_LEVEL_DEBUG):_level(level) {
 
     }
-
+    void SetLevel(enum LogLevel level) {
+        _level = level;
+    }
     void Printf(enum LogLevel level, const char *file, const char *fun, int l, const char *fmt, ...);
 private:
     enum LogLevel _level;
 };
 
+#define LOG_SET_LEVEL(level) Log::GetInstance()->SetLevel(level)
 #define LOG_EMERG(...) Log::GetInstance()->Printf(LOG_EMERG, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
 #define LOG_CRIT(...) Log::GetInstance()->Printf(LOG_LEVEL_CRIT, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
 #define LOG_ERR(...) Log::GetInstance()->Printf(LOG_LEVEL_ERR, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
