@@ -3,45 +3,20 @@
 #include <unistd.h>
 #include <fstream>
 #include <iostream>
+#include <malloc.h>
+#include "log.h"
+#include "io_wrap.h"
 #include "rtmp_server.h"
 
-using namespace std;
-
-class Reader
+typedef struct
 {
-public:
-    Reader(string filename) : _filename(filename) {}
-    ~Reader()
-    {
-        if (in)
-        {
-            in.close();
-        }
-    }
-    bool Init()
-    {
-        in.open(_filename, ios::in | ios::binary);
-        if (!in)
-        {
-            cout << "open " << _filename << " failed" << endl;
-            return false;
-        }
-        return true;
-    }
-    int GetData(char *buf, int size)
-    {
-        in.read(buf, size);
-        if (!in)
-        {
-            return -1;
-        }
-        return in.gcount();
-    }
+    char *buf;
+    int bufSize;
+    char *cur;
+    int pos;
+} CACHE_CTX_T;
 
-private:
-    ifstream in;
-    string _filename;
-};
+using namespace std;
 
 static void Usage(char *appname)
 {
@@ -53,6 +28,35 @@ static void Usage(char *appname)
          << "-u | --url" << endl;
     cout << "\t"
          << "-c | --cache" << endl;
+}
+
+static CACHE_CTX_T *createCache(int size)
+{
+    CACHE_CTX_T *cache = new CACHE_CTX_T();
+    if (cache)
+    {
+        if ((cache->buf = new char[size]))
+        {
+            cache->bufSize = size;
+            cache->cur = NULL;
+            cache->pos = 0;
+        }
+        else
+        {
+            delete cache;
+            cache = NULL;
+        }
+    }
+    return cache;
+}
+
+static void releaseCache(CACHE_CTX_T *cache)
+{
+    if (cache)
+    {
+        delete[] cache->buf;
+        delete cache;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -98,13 +102,6 @@ int main(int argc, char *argv[])
     cout << "url:" << url << endl;
     cout << "cacheSize:" << cacheSize << endl;
 
-    Reader reader(filename);
-    if (!reader.Init())
-    {
-        cout << "reader init failed" << endl;
-        return -1;
-    }
-
     RtmpServer r;
     if (!r.Init(url, cacheSize))
     {
@@ -112,37 +109,45 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    int bufSize = 1024 * 100;//必须大于一个nalu,否则会影响解码
-    char *buf = new char[bufSize];
-    if (!buf)
+    IOWrap ioWrap(filename);
+    if (!ioWrap.Init())
     {
-        cout << "create buf failed " << bufSize << " byte" << endl;
+        cout << "iowrap init failed" << endl;
         return -1;
     }
-    int pos = 0;
 
-    int ret;
-
-    ssize_t size;
-    char *cur;
-    while ((ret = reader.GetData(buf + pos, bufSize - pos)) > 0)
+    CACHE_CTX_T *cache = createCache(100 * 1024); //必须大于一个nalu,否则会影响解码
+    if (!cache)
     {
-        pos += ret;
-        cur = buf;
+        cout << "create cache failed" << endl;
+        return -1;
+    }
+
+    int readSize = 0;
+    int size;
+
+    while ((readSize = ioWrap.Read(cache->buf + cache->pos, cache->bufSize - cache->pos)) > 0)
+    {
+        cache->pos += readSize;
+        cache->cur = cache->buf;
+
         cout << "---------------" << endl;
+
         do
         {
-            cout << "cur:" << (void *)cur << " pos:" << pos << endl;
-            size = r.PublishH264(cur, pos, NULL);
+            cout << "cur:" << (void *)cache->cur << " pos:" << cache->pos << endl;
+            size = r.PublishH264(cache->cur, cache->pos, NULL);
             cout << "send " << size << " byte" << endl;
             if (size < 0)
             {
                 break;
             }
-            cur += size;
-            pos -= size;
-        } while (pos > 0);
+            cache->cur += size;
+            cache->pos -= size;
+        } while (cache->pos > 0);
     }
-    delete[] buf;
+    cout << "end!" << endl;
+
+    releaseCache(cache);
     return 0;
 }

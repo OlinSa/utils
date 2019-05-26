@@ -136,7 +136,7 @@ ssize_t RtmpServer::PublishH264(const char *buf, ssize_t buf_size, void *arg)
 {
     NaluUnit naluUnit;
     ssize_t size = 0;
-    if (size > bufferInfo->buffSize - bufferInfo->alreadSeen)
+    if (buf_size > (bufferInfo->buffSize - bufferInfo->alreadSeen))
     {
         size = bufferInfo->buffSize - bufferInfo->alreadSeen;
     }
@@ -144,6 +144,7 @@ ssize_t RtmpServer::PublishH264(const char *buf, ssize_t buf_size, void *arg)
     {
         size = buf_size;
     }
+
     memcpy(bufferInfo->buff + bufferInfo->pos, buf, size);
     bufferInfo->alreadSeen += size;
 

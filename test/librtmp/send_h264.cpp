@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fstream>
 #include <iomanip>
+#include "log.h"
 #include "librtmp/rtmp_sys.h"
 #include "librtmp/log.h"
 #include "media/h264_wrap.h"

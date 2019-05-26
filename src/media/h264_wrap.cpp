@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "log.h"
 #include "h264_wrap.h"
 
 using namespace std;

@@ -2,7 +2,6 @@
 #define H264_WRAP_HH
 
 #include <string>
-#include "log.h"
 
 typedef enum
 {
