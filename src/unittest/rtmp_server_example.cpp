@@ -61,9 +61,9 @@ static void releaseCache(CACHE_CTX_T *cache)
 
 int main(int argc, char *argv[])
 {
-    LOG_SET_LEVEL(LOG_LEVEL_INFO);
+    // LOG_SET_LEVEL(LOG_LEVEL_INFO);
     string url = "rtmp://127.0.0.1:1935/live/test264";
-    int cacheSize = 10 * 1024;
+    int cacheSize = 1000 * 1024;
     string filename;
 
     int c;
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    CACHE_CTX_T *cache = createCache(100 * 1024); //必须大于一个nalu,否则会影响解码
+    CACHE_CTX_T *cache = createCache(1000 * 1024); //必须大于一个nalu,否则会影响解码
     if (!cache)
     {
         cout << "create cache failed" << endl;

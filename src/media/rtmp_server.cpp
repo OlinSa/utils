@@ -93,8 +93,8 @@ bool RtmpServer::PublishPacket(const NaluUnit &naluUnit)
     default:
     {
 
-        LOG_DEBUG("nalu: startcode:%d,type:%d, data:%p, dataSize:%d",
-                  naluUnit.startCode, naluUnit.type, naluUnit.data, naluUnit.size);
+        // LOG_DEBUG("nalu: startcode:%d,type:%d, data:%p, dataSize:%d",
+        //           naluUnit.startCode, naluUnit.type, naluUnit.data, naluUnit.size);
 
         bool isKeyFrame = (naluUnit.type == NALU_TYPE_IDR) ? true : false;
         if (isKeyFrame)
@@ -145,12 +145,13 @@ ssize_t RtmpServer::PublishH264(const char *buf, ssize_t buf_size, void *arg)
         size = buf_size;
     }
 
-    memcpy(bufferInfo->buff + bufferInfo->pos, buf, size);
+    memcpy(bufferInfo->buff + bufferInfo->alreadSeen, buf, size);
     bufferInfo->alreadSeen += size;
 
     int nextFramePos;
     while ((nextFramePos = h264Wrap->GetNaluFromBuffer(naluUnit, bufferInfo->buff + bufferInfo->pos, bufferInfo->alreadSeen - bufferInfo->pos)) > 0)
     {
+
         LOG_DEBUG("nalu: startcode:%d,type:%d, data:%p, dataSize:%d,nextFramePos:%d",
                   naluUnit.startCode, naluUnit.type, naluUnit.data, naluUnit.size, nextFramePos);
 
