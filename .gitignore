@@ -47,3 +47,5 @@ cmake-build-debug
 __pycache__
 
 CMakeLists.txt.user
+qt/build*
+*.user
