@@ -28,10 +28,6 @@ VideoPlayer::~VideoPlayer()
 }
 bool VideoPlayer::Init()
 {
-//    avcodec_register_all();
-    av_register_all();
-    avformat_network_init();
-
     if(NULL == (formatCtx = avformat_alloc_context())) {
         cout<<"alloc format context failed"<<endl;
         return false;
@@ -89,18 +85,14 @@ bool VideoPlayer::Init()
     imgConvertCtx = sws_getContext(codecCtx->width, codecCtx->height,
                                    codecCtx->pix_fmt, codecCtx->width, codecCtx->height,
                                    AV_PIX_FMT_RGB32, SWS_BICUBIC, nullptr, NULL, NULL);
-    int numBytes = avpicture_get_size(AV_PIX_FMT_RGB32, codecCtx->width, codecCtx->height);
-    cout<<"picture size:"<<numBytes<<endl;
-    outBuffer = (uint8_t*)av_malloc(numBytes * sizeof(uint8_t));
-    avpicture_fill((AVPicture*)frameRGB, outBuffer, AV_PIX_FMT_RGB32,
-                   codecCtx->width, codecCtx->height);
 
-    int ySize = codecCtx->width * codecCtx->height;
+    size_t numBytes = av_image_get_buffer_size(codecCtx->pix_fmt, codecCtx->width, codecCtx->height, 16);
+    cout<<"picture size:"<<numBytes<<endl;
+    outBuffer = (uint8_t*)av_malloc(numBytes*sizeof(size_t));
+    av_image_fill_arrays(frameRGB->data, frameRGB->linesize, outBuffer, AV_PIX_FMT_RGB32, codecCtx->width, codecCtx->height, 1);
+
     packet = av_packet_alloc();
     av_init_packet(packet);
-//    av_new_packet(packet, ySize);
-
-
     return true;
 
 }
@@ -134,7 +126,7 @@ void VideoPlayer::run()
                 emit sig_GetRFrame(image);
             }
         }
-        av_free_packet(packet); //释放资源,否则内存会一直上升
+        av_packet_unref(packet); //释放资源,否则内存会一直上升
         msleep(0.02);
     }
     cout<<"thread exit"<<endl;
