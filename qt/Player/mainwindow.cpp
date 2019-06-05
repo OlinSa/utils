@@ -1,6 +1,9 @@
 #include <QPainter>
+#include <QMessageBox>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -8,18 +11,20 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    player = new VideoPlayer("rtsp://192.168.124.128:8554/test.264");
+    configureDialog = new ConfigureDialog();
+    configureDialog->setWindowModality(Qt::ApplicationModal);
+
+    player = new VideoPlayer();
     connect(player, SIGNAL(sig_GetOneFrame(QImage)), this, SLOT(slotGetOneFrame(QImage)));
     connect(player, SIGNAL(sig_GetRFrame(QImage)), this, SLOT(slotGetRFrame(QImage)));
     connect(ui->Open_red, &QAction::triggered, this, &MainWindow::slotOpenRed);
     connect(ui->Close_Red, &QAction::triggered, this, &MainWindow::slotCloseRed);
-    if(player->Init()) {
-        player->start();
-    }
+    connect(ui->actionURL, &QAction::triggered, this, &MainWindow::slotURL);
 }
 
 MainWindow::~MainWindow()
 {
+    delete configureDialog;
     delete ui;
 }
 
@@ -103,4 +108,28 @@ bool MainWindow::slotCloseRed()
 {
     openRed = false;
     return openRed;
+}
+
+bool MainWindow::slotURL()
+{
+    configureDialog->show();
+}
+
+void MainWindow::on_pushButtonStart_clicked()
+{
+    player->setURL(configureDialog->url);
+
+
+    if(player->Init()) {
+        player->Start();
+    }else  {
+        QString errMsg = "open url:" + QString::fromStdString(configureDialog->url)+" failed";
+        QMessageBox::about(NULL, "error",errMsg);
+    }
+
+}
+
+void MainWindow::on_pushButtonEnd_clicked()
+{
+    player->Stop();
 }

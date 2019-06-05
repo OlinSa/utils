@@ -3,6 +3,16 @@
 
 using namespace std;
 
+VideoPlayer::VideoPlayer()
+{
+    url = "";
+    outBuffer = NULL;
+    frameRGB = NULL;
+    codecCtx = NULL;
+    formatCtx = NULL;
+    state = PLAYER_STATE_UNINIT;
+}
+
 VideoPlayer::VideoPlayer(std::string url)
 {
     this->url = url;
@@ -10,7 +20,9 @@ VideoPlayer::VideoPlayer(std::string url)
     frameRGB = NULL;
     codecCtx = NULL;
     formatCtx = NULL;
+    state = PLAYER_STATE_UNINIT;
 }
+
 VideoPlayer::~VideoPlayer()
 {
     if(outBuffer) {
@@ -26,6 +38,17 @@ VideoPlayer::~VideoPlayer()
         avformat_close_input(&formatCtx);
     }
 }
+
+bool VideoPlayer::setURL(std::string url)
+{
+    this->url = url;
+    return true;
+}
+std::string VideoPlayer::getURL()
+{
+    return url;
+}
+
 bool VideoPlayer::Init()
 {
     if(NULL == (formatCtx = avformat_alloc_context())) {
@@ -93,6 +116,7 @@ bool VideoPlayer::Init()
 
     packet = av_packet_alloc();
     av_init_packet(packet);
+    state = PLAYER_STATE_READY;
     return true;
 
 }
@@ -100,7 +124,7 @@ void VideoPlayer::run()
 {
     int ret;
     int gotPicture = -1;
-    for(;;) {
+    while(state == PLAYER_STATE_RUNING) {
         if(av_read_frame(formatCtx, packet) < 0) {
             cout<<"read frame finial"<<endl;
             break;
@@ -130,4 +154,16 @@ void VideoPlayer::run()
         msleep(0.02);
     }
     cout<<"thread exit"<<endl;
+}
+
+bool VideoPlayer::Start()
+{
+    state = PLAYER_STATE_RUNING;
+    this->start();
+    return true;
+}
+bool VideoPlayer::Stop()
+{
+    state = PLAYER_STATE_STOP;
+    return true;
 }

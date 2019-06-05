@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <QtDebug>
 #include "videoplayer.h"
+#include "configuredialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,12 +32,16 @@ private:
     QImage rImage;
     std::string url;
     bool openRed;
+    ConfigureDialog *configureDialog;
 
 private slots:
     void slotGetOneFrame(QImage);
     void slotGetRFrame(QImage);
     bool slotOpenRed();
     bool slotCloseRed();
+    bool slotURL();
+    void on_pushButtonStart_clicked();
+    void on_pushButtonEnd_clicked();
 };
 
 #endif // MAINWINDOW_H

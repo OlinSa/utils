@@ -19,19 +19,35 @@ extern "C"
 #include <QImage>
 #include <string>
 
+typedef enum {
+    PLAYER_STATE_UNINIT = 0,
+    PLAYER_STATE_READY,
+    PLAYER_STATE_STOP,
+    PLAYER_STATE_RUNING,
+
+}PLAYER_STATE;
+
 class VideoPlayer:public QThread
 {
     Q_OBJECT
 
 public:
+    explicit VideoPlayer();
     explicit VideoPlayer(std::string url);
     ~VideoPlayer();
     bool Init();
+    bool Start();
+    bool Stop();
     void run();
 
 signals:
     void sig_GetOneFrame(QImage image);
     void sig_GetRFrame(QImage image);
+
+public:
+    bool setURL(std::string url);
+    std::string getURL();
+
 
 protected:
     std::string url;
@@ -47,7 +63,7 @@ private:
     uint8_t *outBuffer;
 
     struct SwsContext *imgConvertCtx;
-
+    PLAYER_STATE state;
 };
 
 #endif // VIDEOPLAYER_H

@@ -25,15 +25,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        configuredialog.cpp \
         main.cpp \
         mainwindow.cpp \
         videoplayer.cpp
 
 HEADERS += \
+        configuredialog.h \
         mainwindow.h \
         videoplayer.h
 
 FORMS += \
+        configuredialog.ui \
         mainwindow.ui
 
 LIBS += -L/usr/local/lib \
