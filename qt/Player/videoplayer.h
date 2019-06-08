@@ -20,6 +20,13 @@ extern "C"
 #include <string>
 
 typedef enum {
+    VIDEO_NONE = 0,
+    VIDEO_RED,
+    VIDEO_GREEN,
+    VIDEO_BLUE
+}VIDEO_COLOR_T;
+
+typedef enum {
     PLAYER_STATE_UNINIT = 0,
     PLAYER_STATE_READY,
     PLAYER_STATE_STOP,
@@ -40,6 +47,8 @@ public:
     bool Stop();
     void run();
 
+    void SetVideoColor(VIDEO_COLOR_T color);
+
 signals:
     void sig_GetOneFrame(QImage image);
     void sig_GetRFrame(QImage image);
@@ -50,6 +59,7 @@ public:
 
 
 protected:
+    VIDEO_COLOR_T videoColor;
     std::string url;
     int videoIndex; //stream info index
 private:

@@ -31,14 +31,17 @@ private:
     QImage image;
     QImage rImage;
     std::string url;
-    bool openRed;
     ConfigureDialog *configureDialog;
+
+    VIDEO_COLOR_T videoColor;
 
 private slots:
     void slotGetOneFrame(QImage);
     void slotGetRFrame(QImage);
-    bool slotOpenRed();
-    bool slotCloseRed();
+    bool slotClickRed();
+    bool slotClickGreen();
+    bool slotClickBlue();
+    bool slotClickClose();
     bool slotURL();
     void on_pushButtonStart_clicked();
     void on_pushButtonEnd_clicked();

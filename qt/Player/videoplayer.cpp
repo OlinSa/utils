@@ -11,6 +11,7 @@ VideoPlayer::VideoPlayer()
     codecCtx = NULL;
     formatCtx = NULL;
     state = PLAYER_STATE_UNINIT;
+    videoColor = VIDEO_NONE;
 }
 
 VideoPlayer::VideoPlayer(std::string url)
@@ -21,6 +22,7 @@ VideoPlayer::VideoPlayer(std::string url)
     codecCtx = NULL;
     formatCtx = NULL;
     state = PLAYER_STATE_UNINIT;
+    videoColor = VIDEO_NONE;
 }
 
 VideoPlayer::~VideoPlayer()
@@ -140,11 +142,28 @@ void VideoPlayer::run()
                           frameRGB->linesize);
                 QImage image((uchar *)outBuffer ,codecCtx->width,codecCtx->height,QImage::Format_RGB32);
                 emit sig_GetOneFrame(image);
+                int color;
                 for(int i = 0; i < codecCtx->width; i++) {
                     for(int j = 0; j < codecCtx->height; j++) {
                         QRgb rgb = image.pixel(i,j);
-                        int r = qRed(rgb);
-                        image.setPixel(i, j, qRgb(r,0,0));
+
+                        switch(videoColor) {
+                        case VIDEO_RED:{
+                            color = qRed(rgb);
+                            image.setPixel(i, j, qRgb(color,0,0));
+                        }break;
+                        case VIDEO_BLUE: {
+                            color = qBlue(rgb);
+                            image.setPixel(i, j, qRgb(0,0,color));
+                        }break;
+                        case VIDEO_GREEN: {
+                            color = qGreen(rgb);
+                            image.setPixel(i, j, qRgb(0,color,0));
+                        }break;
+                        default:{
+                            break;
+                        }
+                        }
                     }
                 }
                 emit sig_GetRFrame(image);
@@ -166,4 +185,10 @@ bool VideoPlayer::Stop()
 {
     state = PLAYER_STATE_STOP;
     return true;
+}
+
+void VideoPlayer::SetVideoColor(VIDEO_COLOR_T color)
+{
+   this->videoColor = color;
+   return;
 }

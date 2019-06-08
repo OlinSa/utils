@@ -70,10 +70,12 @@
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>红色分量开关</string>
+     <string>分屏</string>
     </property>
-    <addaction name="Open_red"/>
-    <addaction name="Close_Red"/>
+    <addaction name="actionRed"/>
+    <addaction name="actionGreen"/>
+    <addaction name="actionBlue"/>
+    <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuConfigure">
     <property name="title">
@@ -84,24 +86,29 @@
    <addaction name="menu"/>
    <addaction name="menuConfigure"/>
   </widget>
-  <action name="actionOpen">
+  <action name="actionRed">
    <property name="text">
-    <string>Open</string>
+    <string>Red</string>
    </property>
   </action>
-  <action name="Open_red">
+  <action name="actionGreen">
    <property name="text">
-    <string>Open(&amp;O)</string>
-   </property>
-  </action>
-  <action name="Close_Red">
-   <property name="text">
-    <string>Close(&amp;C)</string>
+    <string>Green</string>
    </property>
   </action>
   <action name="actionURL">
    <property name="text">
     <string>URl</string>
+   </property>
+  </action>
+  <action name="actionBlue">
+   <property name="text">
+    <string>Blue</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
    </property>
   </action>
  </widget>

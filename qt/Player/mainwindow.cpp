@@ -17,9 +17,14 @@ MainWindow::MainWindow(QWidget *parent) :
     player = new VideoPlayer();
     connect(player, SIGNAL(sig_GetOneFrame(QImage)), this, SLOT(slotGetOneFrame(QImage)));
     connect(player, SIGNAL(sig_GetRFrame(QImage)), this, SLOT(slotGetRFrame(QImage)));
-    connect(ui->Open_red, &QAction::triggered, this, &MainWindow::slotOpenRed);
-    connect(ui->Close_Red, &QAction::triggered, this, &MainWindow::slotCloseRed);
+    connect(ui->actionRed, &QAction::triggered, this, &MainWindow::slotClickRed);
+    connect(ui->actionGreen, &QAction::triggered, this, &MainWindow::slotClickGreen);
+    connect(ui->actionBlue, &QAction::triggered, this, &MainWindow::slotClickBlue);
+    connect(ui->actionClose, &QAction::triggered, this, &MainWindow::slotClickClose);
+
     connect(ui->actionURL, &QAction::triggered, this, &MainWindow::slotURL);
+
+    videoColor = VIDEO_NONE;
 }
 
 MainWindow::~MainWindow()
@@ -46,15 +51,15 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
     painter.drawImage(QPoint(x, y), img);
 
-    if(openRed) {
-        QWidget *redVideo = new QWidget(this);
-        redVideo->resize(this->width()/3, this->height() /3 );
+    if(videoColor != VIDEO_NONE) {
+        QWidget *video = new QWidget(this);
+        video->resize(this->width()/3, this->height() /3 );
         painter.setBrush(Qt::white);
-        painter.drawRect(0,0, redVideo->width(), redVideo->height());
-        QImage rImg = rImage.scaled(redVideo->size(), Qt::KeepAspectRatio);
+        painter.drawRect(0,0, video->width(), video->height());
+        QImage rImg = rImage.scaled(video->size(), Qt::KeepAspectRatio);
 
-        int rx = redVideo->width() - rImg.width();
-        int ry = redVideo->height() - rImg.height();
+        int rx = video->width() - rImg.width();
+        int ry = video->height() - rImg.height();
 
         rx /= 2;
         ry /= 2;
@@ -99,20 +104,36 @@ void MainWindow::slotGetRFrame(QImage image)
     rImage = image;
     update();
 }
-bool MainWindow::slotOpenRed()
+
+bool MainWindow::slotClickRed()
 {
-    openRed = true;
-    return openRed;
+    videoColor = VIDEO_RED;
+    player->SetVideoColor(videoColor);
+    return true;
 }
-bool MainWindow::slotCloseRed()
+bool MainWindow::slotClickGreen()
 {
-    openRed = false;
-    return openRed;
+    videoColor = VIDEO_GREEN;
+    player->SetVideoColor(videoColor);
+    return true;
+}
+bool MainWindow::slotClickBlue()
+{
+    videoColor = VIDEO_BLUE;
+    player->SetVideoColor(videoColor);
+    return true;
+}
+bool MainWindow::slotClickClose()
+{
+    videoColor = VIDEO_NONE;
+    player->SetVideoColor(videoColor);
+    return true;
 }
 
 bool MainWindow::slotURL()
 {
     configureDialog->show();
+    return  true;
 }
 
 void MainWindow::on_pushButtonStart_clicked()
