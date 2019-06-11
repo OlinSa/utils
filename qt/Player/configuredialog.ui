@@ -52,6 +52,45 @@
     </rect>
    </property>
   </widget>
+  <widget class="QRadioButton" name="radioButtonRTSP">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>120</y>
+     <width>112</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>RTSP</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="radioButtonRTMP">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>120</y>
+     <width>112</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>RTMP</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonSetPath">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>50</y>
+     <width>31</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>...</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

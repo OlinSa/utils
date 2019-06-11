@@ -9,6 +9,7 @@ extern "C"
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/time.h>
 #include <SDL2/SDL.h>
 
 #ifdef __cplusplus

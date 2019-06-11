@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 #include "videoplayer.h"
 
 using namespace std;
@@ -59,9 +60,10 @@ bool VideoPlayer::Init()
     }
 
     AVDictionary *options=NULL;
+    av_dict_set(&options, "buffer_size", "1024000", 0);
 //    av_dict_set(&options, "rtsp_transport", "tcp", 0);
 
-    if(avformat_open_input(&formatCtx, url.c_str(), NULL, NULL) != 0) {
+    if(avformat_open_input(&formatCtx, url.c_str(), NULL, &options) != 0) {
         cout<<"open "<<url<<" failed"<<endl;
         return false;
     }
@@ -126,6 +128,8 @@ void VideoPlayer::run()
 {
     int ret;
     int gotPicture = -1;
+
+    double msDelay = 0;
     while(state == PLAYER_STATE_RUNING) {
         if(av_read_frame(formatCtx, packet) < 0) {
             cout<<"read frame finial"<<endl;
@@ -137,11 +141,23 @@ void VideoPlayer::run()
                 cout<<"decodec error"<<endl;
                 break;
             }
+
+            msDelay = av_q2d(codecCtx->time_base);
+
+            msDelay += frameRGB->repeat_pict * (msDelay * 0.5);
+            if(msDelay > 0) {
+//                extra_delay = repeat_pict / (2*fps)。
+                msDelay *= 1000 * 1000;
+                usleep(msDelay);
+                 cout<<msDelay<<endl;
+            }
+
             if(gotPicture) {
                 sws_scale(imgConvertCtx, frame->data, frame->linesize, 0, codecCtx->height, frameRGB->data,
                           frameRGB->linesize);
                 QImage image((uchar *)outBuffer ,codecCtx->width,codecCtx->height,QImage::Format_RGB32);
                 emit sig_GetOneFrame(image);
+
                 int color;
                 for(int i = 0; i < codecCtx->width; i++) {
                     for(int j = 0; j < codecCtx->height; j++) {
@@ -170,7 +186,6 @@ void VideoPlayer::run()
             }
         }
         av_packet_unref(packet); //释放资源,否则内存会一直上升
-        msleep(0.02);
     }
     cout<<"thread exit"<<endl;
 }

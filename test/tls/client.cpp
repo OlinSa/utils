@@ -10,7 +10,7 @@
 #include "openssl/err.h"
 
 #define CA_CERT "ca/ca-cert.pem"
-#define CLIENT_CERT "server/server-cert.pem"
+#define SERVER_CERT "server/server-cert.pem"
 
 #define EXIT_IF_TRUE(x)                                    \
     do {                                                        \
@@ -44,7 +44,7 @@ int main(int argc, char *argvp[])
     EXIT_IF_TRUE(!SSL_CTX_load_verify_locations(ctx, CA_CERT, NULL));
 
     //加载自己的证书
-    EXIT_IF_TRUE (SSL_CTX_use_certificate_file(ctx, CLIENT_CERT, SSL_FILETYPE_PEM) <= 0) ; 
+    EXIT_IF_TRUE (SSL_CTX_use_certificate_file(ctx, SERVER_CERT, SSL_FILETYPE_PEM) <= 0);
 
 
     int nFd = socket(AF_INET, SOCK_STREAM, 0);
