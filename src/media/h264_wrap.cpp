@@ -320,6 +320,9 @@ bool H264Wrap::DecodeNaluParams(NaluParam &naluParam, unsigned char *data, int &
 {
 	KickOutNaluRaceCondition(data, dataLen);
 	unsigned int startBits = 0;
+
+        naluParam.rbsp.offset_for_ref_frame = NULL;
+
 	naluParam.header.forbiddent_zero_bit = u(1, data, startBits);
 	naluParam.header.nal_ref_idc = u(2, data, startBits);
 	naluParam.header.type = u(5, data, startBits);
