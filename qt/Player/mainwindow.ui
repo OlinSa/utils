@@ -79,9 +79,11 @@
    </widget>
    <widget class="QMenu" name="menuConfigure">
     <property name="title">
-     <string>Configure</string>
+     <string>Option</string>
     </property>
-    <addaction name="actionURL"/>
+    <addaction name="actionStreamPull"/>
+    <addaction name="separator"/>
+    <addaction name="actionStreamPush"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menuConfigure"/>
@@ -96,9 +98,9 @@
     <string>Green</string>
    </property>
   </action>
-  <action name="actionURL">
+  <action name="actionStreamPull">
    <property name="text">
-    <string>URl</string>
+    <string>PullFlow</string>
    </property>
   </action>
   <action name="actionBlue">
@@ -109,6 +111,11 @@
   <action name="actionClose">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="actionStreamPush">
+   <property name="text">
+    <string>PushFlow</string>
    </property>
   </action>
  </widget>

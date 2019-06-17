@@ -8,6 +8,7 @@
 #include <QtDebug>
 #include "videoplayer.h"
 #include "configuredialog.h"
+#include "pushflow.h"
 
 namespace Ui {
 class MainWindow;
@@ -32,6 +33,7 @@ private:
     QImage rImage;
     std::string url;
     ConfigureDialog *configureDialog;
+    PushFlow *pushFlow;
 
     VIDEO_COLOR_T videoColor;
 
@@ -42,7 +44,8 @@ private slots:
     bool slotClickGreen();
     bool slotClickBlue();
     bool slotClickClose();
-    bool slotURL();
+    bool slotPush();
+    bool slotPull();
     void on_pushButtonStart_clicked();
     void on_pushButtonEnd_clicked();
 };

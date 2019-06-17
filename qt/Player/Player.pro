@@ -28,16 +28,19 @@ SOURCES += \
         configuredialog.cpp \
         main.cpp \
         mainwindow.cpp \
+        pushflow.cpp \
         videoplayer.cpp
 
 HEADERS += \
         configuredialog.h \
         mainwindow.h \
+        pushflow.h \
         videoplayer.h
 
 FORMS += \
         configuredialog.ui \
-        mainwindow.ui
+        mainwindow.ui \
+        pushflow.ui
 
 LIBS += -L/usr/local/lib \
          -lavformat -lavcodec -lavdevice -lavfilter  -lavutil  -lswresample -lswscale -ldl -lz

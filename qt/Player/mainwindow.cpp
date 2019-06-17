@@ -11,8 +11,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //设置窗口为model模式
     configureDialog = new ConfigureDialog();
     configureDialog->setWindowModality(Qt::ApplicationModal);
+
+
+    pushFlow = new PushFlow();
+    pushFlow->setWindowModality(Qt::ApplicationModal);
 
     player = new VideoPlayer();
     connect(player, SIGNAL(sig_GetOneFrame(QImage)), this, SLOT(slotGetOneFrame(QImage)));
@@ -22,7 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionBlue, &QAction::triggered, this, &MainWindow::slotClickBlue);
     connect(ui->actionClose, &QAction::triggered, this, &MainWindow::slotClickClose);
 
-    connect(ui->actionURL, &QAction::triggered, this, &MainWindow::slotURL);
+    connect(ui->actionStreamPull, &QAction::triggered, this, &MainWindow::slotPull);
+    connect(ui->actionStreamPush, &QAction::triggered, this, &MainWindow::slotPush);
 
     videoColor = VIDEO_NONE;
 }
@@ -30,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete configureDialog;
+    delete pushFlow;
     delete ui;
 }
 
@@ -130,9 +137,15 @@ bool MainWindow::slotClickClose()
     return true;
 }
 
-bool MainWindow::slotURL()
+bool MainWindow::slotPull()
 {
     configureDialog->show();
+    return  true;
+}
+
+bool MainWindow::slotPush()
+{
+    pushFlow->show();
     return  true;
 }
 
