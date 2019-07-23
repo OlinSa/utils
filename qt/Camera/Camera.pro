@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-12-02T15:03:18
+# Project created by QtCreator 2019-06-27T21:54:28
 #
 #-------------------------------------------------
 
@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = opencv_camera
+TARGET = Camera
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -26,14 +26,17 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        camera.cpp
-INCLUDEPATH += /usr/local/include/opencv4
+        widget.cpp
 
 HEADERS += \
-        camera.h
+        widget.h
 
 FORMS += \
-        camera.ui
+        widget.ui
+
+INCLUDEPATH += /usr/local/include/opencv4
+
+LIBS += -L/usr/local/lib -lopencv_core -lopencv_imgproc -lopencv_imgcodecs -lopencv_videoio
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

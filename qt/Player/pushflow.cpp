@@ -179,7 +179,7 @@ void PushFlow::on_pushButton_clicked()
             cout << avr.num << " " << avr.den << "  "<<pkt.dts <<"  "<<pkt.pts<<"   "<< pts_time <<endl;
             if (pts_time > now_time) {
                 //播放时间同步
-                cout<<"pts:"<<pts_time<<" now:"<<now_time<<end;
+                cout<<"pts:"<<pts_time<<" now:"<<now_time<<endl;
                 av_usleep((unsigned int)(pts_time - now_time));
             }
         }
