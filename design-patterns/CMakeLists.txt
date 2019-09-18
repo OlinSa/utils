@@ -1,2 +1,2 @@
 ADD_SUBDIRECTORY(singleton)
-
+ADD_SUBDIRECTORY(prototype)
