@@ -1,0 +1,1 @@
+add_executable(flyweight flyweight.cpp)
