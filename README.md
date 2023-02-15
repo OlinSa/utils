@@ -7,6 +7,7 @@
 ```
 |--- cmake:cmake 文件存放目录
 |--- common: 通用头文件
+|--- driver: 驱动程序
 |--- python: 一些Python demo
 |--- src: 源码
     |--- image
