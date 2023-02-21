@@ -18,7 +18,7 @@ void Lcd::Fill(uint16_t xsta, uint16_t ysta, uint16_t xend, uint16_t yend,
   }
 }
 void Lcd::DrawPoint(uint16_t x, uint16_t y, uint16_t color) {
-  printf("DrawPoint=(%d,%d,c=%d)\n", x, y, color);
+  printf("DrawPoint=(%u,%u,c=0x%x)\n", x, y, color);
   plat_->AddressSet(x, y, x, y);
   plat_->WrData16(color);
 }
@@ -92,17 +92,14 @@ void Lcd::DrawCircle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color) {
 
 void Lcd::ShowChar(uint16_t x, uint16_t y, uint8_t num, uint16_t fc,
                    uint16_t bc, uint8_t sizey, uint8_t mode) {
-  printf("ShowChar, (%d,%d) p=%c\n", x, y, num);
   uint8_t temp, sizex, t, m = 0;
   uint16_t i, TypefaceNum;
   uint16_t x0 = x;
   sizex = sizey / 2;
   TypefaceNum = (sizex / 8 + ((sizex % 8) ? 1 : 0)) * sizey;
   num = num - ' ';
-  plat_->AddressSet(x, y, x + sizex - 1, y + sizey - 1);
-  printf("AddressSet, (%d,%d)->(%d,%d)\n", x, y, x + sizex - 1, y + sizey - 1);
+  plat_->AddressSet(x, y, x + sizex, y + sizey);
   for (i = 0; i < TypefaceNum; i++) {
-    // sleep(1);
     if (sizey == 12)
       temp = ascii_1206[num][i];
     else if (sizey == 16)
@@ -114,7 +111,6 @@ void Lcd::ShowChar(uint16_t x, uint16_t y, uint8_t num, uint16_t fc,
     else
       return;
     for (t = 0; t < 8; t++) {
-      // printf("temp=%d sizey=%d num=%d i=%d\n", temp, sizey, num, i);
       if (!mode) {
         if (temp & (0x01 << t))
           plat_->WrData16(fc);
@@ -141,7 +137,6 @@ void Lcd::ShowChar(uint16_t x, uint16_t y, uint8_t num, uint16_t fc,
 void Lcd::ShowString(uint16_t x, uint16_t y, const uint8_t *p, uint16_t fc,
                      uint16_t bc, uint8_t sizey, uint8_t mode) {
   while (p != nullptr && *p != '\0') {
-    printf("ShowString, p=%c", *p);
     ShowChar(x, y, *p, fc, bc, sizey, mode);
     x += sizey / 2;
     p++;

@@ -317,22 +317,24 @@ void LcdInit::WrData16(uint16_t dat) {
 }
 void LcdInit::WrReg(uint8_t dat) {
   digitalWrite(dc_, LOW);
-  wiringPiSPIDataRW(channel_, &dat, 1);
+  WritBus(dat);
 }
 void LcdInit::AddressSet(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
   // set the X coordinates
-  WrReg(0x2a);
-  WrReg(0x00);
+  WrReg(0x2A);
+  WrData8(0x00);
   WrData8(x1);
-  WrData8((x2 - 1) >> 8);
+  WrData8(0x00);
+  WrData8(x2 - 1);
 
   // set the Y coordinates
-  WrReg(0x2b);
+  WrReg(0x2B);
   WrData8(0x00);
   WrData8(y1);
-  WrData8((y2 - 1) >> 8);
+  WrData8(0x00);
   WrData8((y2 - 1));
-  WrReg(0x2c);
+
+  WrReg(0x2C);
 }
 
 void LcdInit::WrRst(uint8_t dat) {
