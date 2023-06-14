@@ -4,7 +4,7 @@
 #include <memory>
 #include <stdint.h>
 
-#include "lcd_init.h"
+#include "lcd_platform.h"
 
 #define LCD_W 240
 #define LCD_H 240
@@ -36,6 +36,6 @@ public:
                    const uint8_t pic[]);
 
 private:
-  std::shared_ptr<LcdInit> plat_;
+  std::shared_ptr<LcdPlatform> plat_;
 };
 #endif

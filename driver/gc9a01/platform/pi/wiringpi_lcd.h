@@ -1,25 +1,25 @@
-#ifndef LCD_INIT_H_
-#define LCD_INIT_H_
-#include <stdint.h>
+#ifndef WIRING_PI_PLATFORM_
+#define WIRING_PI_PLATFORM_
+#include "lcd_platform.h"
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
 #define USE_HORIZONTAL 0 // 0或1为竖屏 2或3为横屏
 
-class LcdInit {
+class WiringPiLcd : public LcdPlatform {
 public:
-  LcdInit();
-  virtual ~LcdInit();
-  void Initialize();
-  void DelayMs(uint32_t ms);
+  WiringPiLcd();
+  virtual ~WiringPiLcd();
 
-  void WritBus(uint8_t dat);
-  void WrData8(uint8_t dat);
-  void WrData16(uint16_t dat);
-  void WrReg(uint8_t dat);
-  void AddressSet(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+  void Initialize() override;
+  void WritBus(uint8_t dat) override;
+  void WrData8(uint8_t dat) override;
+  void WrData16(uint16_t dat) override;
+  void WrReg(uint8_t dat) override;
+  void AddressSet(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) override;
 
 protected:
+  void DelayMs(uint32_t ms);
   void DeviceGpioInit();
   void Reset();
   void SetAttributes(uint8_t direct);

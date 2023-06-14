@@ -3,8 +3,9 @@
 #include "font.h"
 #include <math.h>
 #include <unistd.h>
+#include <stdio.h>
 
-Lcd::Lcd() : plat_(std::make_shared<LcdInit>()) {}
+Lcd::Lcd() : plat_(LcdPlatform::builder()) {}
 Lcd::~Lcd() {}
 
 void Lcd::Initialize() { plat_->Initialize(); }

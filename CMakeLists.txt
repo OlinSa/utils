@@ -6,7 +6,7 @@ if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
     ")
 endif()
 
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.0)
 project(utils)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)

@@ -1,10 +1,10 @@
-#include "lcd_init.h"
+#include "wiringpi_lcd.h"
 
 #include <unistd.h>
 
 #include <iostream>
 
-LcdInit::LcdInit() {
+WiringPiLcd::WiringPiLcd() {
   if (wiringPiSetupGpio() < 0) {
     std::cout << "wiringPiSetupGpio failed" << std::endl;
   }
@@ -25,9 +25,9 @@ LcdInit::LcdInit() {
   pinMode(blk_, PWM_OUTPUT);
   pwmWrite(blk_, 512);
 }
-LcdInit::~LcdInit() {}
+WiringPiLcd::~WiringPiLcd() {}
 
-void LcdInit::DeviceGpioInit() {
+void WiringPiLcd::DeviceGpioInit() {
   pinMode(ce_, OUTPUT);
   pinMode(rst_, OUTPUT);
   pinMode(dc_, OUTPUT);
@@ -36,7 +36,7 @@ void LcdInit::DeviceGpioInit() {
   digitalWrite(blk_, 1);
 }
 
-void LcdInit::SetAttributes(uint8_t direct) {
+void WiringPiLcd::SetAttributes(uint8_t direct) {
   WrReg(0x36);
   if (direct == 0)
     WrData8(0x08);
@@ -48,7 +48,7 @@ void LcdInit::SetAttributes(uint8_t direct) {
     WrData8(0xA8);
 }
 
-void LcdInit::InitReg() {
+void WiringPiLcd::InitReg() {
   WrReg(0xEF);
   WrReg(0xEB);
   WrData8(0x14);
@@ -281,7 +281,7 @@ void LcdInit::InitReg() {
   DelayMs(20);
 }
 
-void LcdInit::Reset() {
+void WiringPiLcd::Reset() {
   digitalWrite(rst_, 1);
   delay(100);
   digitalWrite(rst_, 0);
@@ -290,7 +290,7 @@ void LcdInit::Reset() {
   delay(100);
 }
 
-void LcdInit::Initialize() {
+void WiringPiLcd::Initialize() {
   // Turn on the backlight
   digitalWrite(blk_, 1);
 
@@ -303,23 +303,23 @@ void LcdInit::Initialize() {
   // Set the initialization register
   InitReg();
 }
-void LcdInit::DelayMs(uint32_t ms) { usleep(ms * 1000); }
+void WiringPiLcd::DelayMs(uint32_t ms) { usleep(ms * 1000); }
 
-void LcdInit::WritBus(uint8_t dat) { wiringPiSPIDataRW(channel_, &dat, 1); }
-void LcdInit::WrData8(uint8_t dat) {
+void WiringPiLcd::WritBus(uint8_t dat) { wiringPiSPIDataRW(channel_, &dat, 1); }
+void WiringPiLcd::WrData8(uint8_t dat) {
   digitalWrite(dc_, HIGH);
   WritBus(dat);
 }
-void LcdInit::WrData16(uint16_t dat) {
+void WiringPiLcd::WrData16(uint16_t dat) {
   digitalWrite(dc_, HIGH);
   WritBus(dat >> 8);
   WritBus(dat);
 }
-void LcdInit::WrReg(uint8_t dat) {
+void WiringPiLcd::WrReg(uint8_t dat) {
   digitalWrite(dc_, LOW);
   WritBus(dat);
 }
-void LcdInit::AddressSet(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
+void WiringPiLcd::AddressSet(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
   // set the X coordinates
   WrReg(0x2A);
   WrData8(0x00);
@@ -337,11 +337,20 @@ void LcdInit::AddressSet(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
   WrReg(0x2C);
 }
 
-void LcdInit::WrRst(uint8_t dat) {
+void WiringPiLcd::WrRst(uint8_t dat) {
   printf("WrRst=%u\n", dat);
   digitalWrite(rst_, dat == 0 ? LOW : HIGH);
 }
-void LcdInit::WrBlk(uint8_t dat) {
+void WiringPiLcd::WrBlk(uint8_t dat) {
   printf("WrBlk=%u\n", dat);
   digitalWrite(blk_, dat == 0 ? LOW : HIGH);
+}
+
+static std::shared_ptr<LcdPlatform> g_impl;
+std::shared_ptr<LcdPlatform> LcdPlatform::builder() {
+  if (g_impl == nullptr) {
+    g_impl = std::make_shared<WiringPiLcd>();
+  }
+  return g_impl;
+
 }
